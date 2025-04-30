@@ -6,9 +6,13 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody playRB;
     public float jumpForce;
+    public float doubleJumpForce;
     public float playGrav;
-    public bool isOnGround = true;
 
+    public int jumpAmt = 2;
+    public int maxJumps = 2;
+
+    public bool isOnGround = true;
     public bool gameOver = false;
 
     private Animator playerAnim;
@@ -18,7 +22,6 @@ public class PlayerController : MonoBehaviour
 
     public AudioClip jump;
     public AudioClip crash;
-
     private AudioSource playerAudio;
 
     // Start is called before the first frame update
@@ -33,13 +36,33 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isOnGround && !gameOver)
+        // jumping
+        // make int of jumps
+        // jumps = 2
+        // jump = -1
+        // if int > 0 can jump
+        // if onGround, jump = 2
+
+        if (Input.GetKeyDown(KeyCode.Space) && jumpAmt > 0 && !gameOver)
         {
-            playRB.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isOnGround = false;
-            playerAnim.SetTrigger("Jump_trig");
+            if (jumpAmt == maxJumps)
+            {
+                playRB.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                
+                isOnGround = false;
+                playerAnim.SetTrigger("Jump_trig");
+                playerAudio.PlayOneShot(jump, 1.0f);
+            }
+        else
+            {
+                playRB.AddForce(Vector3.up * doubleJumpForce, ForceMode.Impulse);
+               
+                isOnGround = false;
+                playerAnim.SetTrigger("DJump_trig");
+                playerAudio.PlayOneShot(jump, 1.0f);
+            }
+            jumpAmt--;
             dirt.Stop();
-            playerAudio.PlayOneShot(jump, 1.0f);
         }
     }
 
@@ -49,6 +72,7 @@ public class PlayerController : MonoBehaviour
         {
             isOnGround = true;
             dirt.Play();
+            jumpAmt = 2;
         }
         else if(collision.gameObject.CompareTag("obstacle"))
         {
