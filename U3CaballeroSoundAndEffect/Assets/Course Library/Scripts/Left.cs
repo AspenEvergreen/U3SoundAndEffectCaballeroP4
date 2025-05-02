@@ -19,12 +19,21 @@ public class Left : MonoBehaviour
     {
         if (playerControllerScript.gameOver == false)
         {
-            transform.Translate(Vector3.left * Time.deltaTime * speed);
+            if (playerControllerScript.dash)
+            {
+                transform.Translate(Vector3.left * Time.deltaTime * (speed * 2));
+            }
+            else
+            {
+                transform.Translate(Vector3.left * Time.deltaTime * speed);
+            }
         }
 
         if (transform.position.x < leftB && gameObject.CompareTag("obstacle"))
         {
             Destroy(gameObject);
         }
+
+        
     }
 }

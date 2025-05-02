@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -9,8 +10,9 @@ public class PlayerController : MonoBehaviour
     public float doubleJumpForce;
     public float playGrav;
 
-    public int jumpAmt = 2;
-    public int maxJumps = 2;
+    public bool dJumpU = false;
+
+    public bool dash = false;
 
     public bool isOnGround = true;
     public bool gameOver = false;
@@ -43,26 +45,35 @@ public class PlayerController : MonoBehaviour
         // if int > 0 can jump
         // if onGround, jump = 2
 
-        if (Input.GetKeyDown(KeyCode.Space) && jumpAmt > 0 && !gameOver)
+        if (Input.GetKeyDown(KeyCode.Space) && isOnGround && !gameOver)
         {
-            if (jumpAmt == maxJumps)
-            {
-                playRB.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+             playRB.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
                 
-                isOnGround = false;
-                playerAnim.SetTrigger("Jump_trig");
-                playerAudio.PlayOneShot(jump, 1.0f);
-            }
-        else
-            {
-                playRB.AddForce(Vector3.up * doubleJumpForce, ForceMode.Impulse);
-               
-                isOnGround = false;
-                playerAnim.SetTrigger("DJump_trig");
-                playerAudio.PlayOneShot(jump, 1.0f);
-            }
-            jumpAmt--;
-            dirt.Stop();
+             isOnGround = false;
+             playerAnim.SetTrigger("Jump_trig");
+             playerAudio.PlayOneShot(jump, 1.0f);
+             dJumpU = false;
+             dirt.Stop();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && !isOnGround && !dJumpU)
+        {
+             dJumpU = true;
+             playRB.AddForce(Vector3.up * doubleJumpForce, ForceMode.Impulse);
+              
+             isOnGround = false;
+             playerAnim.SetTrigger("Running_Jump");
+             playerAudio.PlayOneShot(jump, 1.0f);
+        }
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            dash = true;
+            playerAnim.SetFloat("Speed_Multiplier", 2.0f);
+        }
+        else if (dash)
+        {
+            dash = false;
+            playerAnim.SetFloat("Speed_Multiplier",  1.0f);
         }
     }
 
@@ -72,7 +83,6 @@ public class PlayerController : MonoBehaviour
         {
             isOnGround = true;
             dirt.Play();
-            jumpAmt = 2;
         }
         else if(collision.gameObject.CompareTag("obstacle"))
         {
